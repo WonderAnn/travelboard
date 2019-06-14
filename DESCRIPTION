@@ -1,0 +1,23 @@
+Package: travelboard
+Title: Travelboard for the Building Dashboards with Shiny Courses
+Version: 0.0.0.9000
+Authors@R: person('Mario', 'Annau', email = 'mario.annau@quantargo.com', role = c('cre', 'aut'))
+Description: Travelboard for the Building Dashboards with Shiny Courses. The dashboard compares different destinations based on AirBnb, Places, Statistics, Weather and News.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    shiny,
+    golem,
+    DT,
+    attempt,
+    glue,
+    htmltools,
+    shinydashboard
+Remotes: 
+    Thinkr-open/golem
+RoxygenNote: 6.1.1
+URL: https://github.com/Quantargo/travelboard
+BugReports: https://github.com/Quantargo/travelboard/issues
+Suggests: 
+    testthat
