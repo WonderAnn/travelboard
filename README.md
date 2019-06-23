@@ -9,46 +9,56 @@
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 <!-- badges: end -->
 
-The goal of travelboard is to …
+The holiday season is around the corner and we are flooded with information for possible destinations. The goal is to create a Shiny app to extract useful information from differnt data sources to ultimately answer the question which holiday destination to choose.
+
+We have pre-selected the following destinations:
+
+- Crete
+- Rome
+- Vienna
+- Lisbon
+- Mallorca
+
+We would now like to present information for each of these destinations using different information sources:
+
+- AirBnB (for rooms, prices, ratings, etc.)
+- Google Places (nearby restaurants, museums, maps)
+- Statistics from OECD (PPP, Quality of living, demographics, etc.)
+- Weather Data (forecasts and historical, temperature, rain)
+- Twitter Data (analyzing Twitter stream for respective location, sentiment, important words, etc.)
+
+Each team shall choose one information source and create a Shiny Dashboard page presenting useful information. The respective destination will serve as an input and can be changed interactively. 
+
+Each team will work on one of the prepared modules:
+
+- AirBnB: `R/mod_airbnb.R`
+- Google Places: `R/mod_places.R`
+- Statistics: `R/mod_statistics.R`
+- Weather: `R/mod_weather.R`
+- Twitter, NYTimes Data: `R/mod_news.R`
+
+Data is already prepared with the workspace in the folder `~/workshop` and can be hard-coded within the application if used directly. Alternatively, data can also be integrated within the `/data` folder.
 
 ## Installation
 
 You can install the released version of travelboard from
-[CRAN](https://CRAN.R-project.org) with:
+[Github](https://github.com/Quantargo/travelboard) with:
 
 ``` r
-install.packages("travelboard")
+remotes::install_github("travelboard")
 ```
 
-## Example
+You can run the app after package has been installed using
 
-This is a basic example which shows you how to solve a common problem:
+`travelboard::run_app()`
 
-``` r
-library(travelboard)
-## basic example code
-```
+or within the directory `inst/app` by selecting either `server.R` or `ui.R` within RStudio and hitting the button **Run App**.
 
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
+## Project Template
 
-``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
-```
-
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date.
-
-You can also embed plots, for example:
-
-<img src="man/figures/README-pressure-1.png" width="100%" />
-
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub\!
+- Template has been created using **golem**
+- Settings applied using `dev/01_start.R` and `dev/02_dev.R`
+- Created five modules
+- Called by `inst/app_server.R`
+- Checkout the template from Github at https://github.com/Quantargo/travelboard
+- Each team should only work on one module - additional functions can be added to the package, as well.
