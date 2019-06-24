@@ -6,6 +6,10 @@ Description: Travelboard for the Building Dashboards with Shiny Courses. The das
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+Depends:
+    magrittr,
+    dplyr,
+    ggplot2
 Imports: 
     shiny,
     golem,
