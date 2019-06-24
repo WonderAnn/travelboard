@@ -86,10 +86,33 @@ mod_airbnb_server <- function(input, output, session, dest){
 
 
   output$airbnb_table <- DT::renderDataTable(
-      DT::datatable(data = dt_filtered()[, c("name","city","price", "beds", "review_scores_rating", "room_type")], 
+      DT::datatable(data = dt_filtered()[, c("name","city","price", "beds", "review_scores_rating", "room_type")],
+                    selection = "single",
                     options = list(pageLength = 10), 
                     rownames = FALSE)
   )
+  
+  
+  observeEvent(input$airbnb_table_rows_selected, {
+    # Clear selection
+    DT::dataTableProxy("airbnb_table") %>% DT::selectRows(NULL)
+  })
+
+  rownum <- reactive({ req(input$airbnb_table_rows_selected) })
+  
+  observe({
+
+    selectedRow <- dt_filtered()[rownum(),]
+
+    # dialog <- modalDialog(title = "Important News",
+    #                       "selected row number",
+    #                       fluidPage(
+    #                         title = selectedRow[, "name"]
+    #                       )
+    # )
+    # showModal(dialog)
+  })
+  
   
   output$price_distr <- renderPlot({
     
