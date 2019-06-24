@@ -34,9 +34,9 @@ mod_airbnb_ui <- function(id, dest){
       box(title = "FILTERS", width = 10,
           div(style="display: inline-block;vertical-align:top; width: 200px;",sliderInput(ns("input_price"), "Price", 0, 500, value = c(0,500), dragRange = TRUE)),
           div(style="display: inline-block;vertical-align:top; width: 100px;",HTML("<br>")),
-          div(style="display: inline-block;vertical-align:top; width: 100px;",numericInput(ns("input_bed"), "No. of beds", value = 1)),
+          div(style="display: inline-block;vertical-align:top; width: 100px;",sliderInput(ns("input_beds"), "No. of beds", 0, 50, value = c(0,50), dragRange = TRUE)),
           div(style="display: inline-block;vertical-align:top; width: 100px;",HTML("<br>")),
-          div(style="display: inline-block;vertical-align:top; width: 80px;",numericInput(ns("input_rating"), "Min. rating", value = 3))
+          div(style="display: inline-block;vertical-align:top; width: 80px;",numericInput(ns("input_rating"), "Min. rating", value = 0, min = 0, max = 100))
           )
     ),
     
@@ -65,19 +65,22 @@ mod_airbnb_server <- function(input, output, session, dest){
   dt_filtered <- reactive({
     dt_filtered <- filter(dt_country(), 
                           price >= input$input_price[1] & price <= input$input_price[2],
-                          bedrooms == input$input_bed,
+                          beds >= input$input_beds[1] & beds <= input$input_beds[2],
                           review_scores_rating >= input$input_rating
                           )
   })
   
   observe({
-    updateSliderInput(session, "input_price", max = max(dt_country()$price, na.rm = TRUE)-100)
+    updateSliderInput(session, "input_price", value = c(0,max(dt_country()$price, na.rm = TRUE)), 
+                      max = max(dt_country()$price, na.rm = TRUE))
+    updateSliderInput(session, "input_beds", value = c(0,max(dt_country()$beds, na.rm = TRUE)), 
+                      max = max(dt_country()$beds, na.rm = TRUE))
   })
   
 
 
   output$airbnb_table <- DT::renderDataTable(
-      DT::datatable(data = dt_filtered()[, c("name","city","price")], 
+      DT::datatable(data = dt_filtered()[, c("name","city","price", "beds", "review_scores_rating", "room_type")], 
                     options = list(pageLength = 10), 
                     rownames = FALSE)
   )
