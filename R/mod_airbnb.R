@@ -13,23 +13,18 @@
 #' @keywords internal
 #' @export 
 #' @importFrom shiny NS tagList 
+#' @import tidyverse
+#' @import leaflet
+
 mod_airbnb_ui <- function(id, dest){
   ns <- NS(id)
-  
-  # This is just an example UI to be modified
-  # Please change for your purpose
-  # Do not forget to put ns() around all input ids!!!
+
   tagList(
     tags$h1(paste(dest, "Airbnb", sep = "-")),
     fluidRow(
-      box(title = dest, plotOutput(ns("plot1"), height = 250)),
-      
-      box(
-        title = "Controls",
-        sliderInput(ns("slider"), "Number of observations:", 1, 100, 50)
-      )
+      leafletOutput(ns("map1"))
     )
-  )
+  )  
 }
     
 # Module Server
@@ -40,18 +35,21 @@ mod_airbnb_ui <- function(id, dest){
 mod_airbnb_server <- function(input, output, session, dest){
   ns <- session$ns
   
-  # This is just an example Server to be modified
-  # Please change for your purpose
-  histdata <- rnorm(500)
-  output$plot1 <- renderPlot({
-    data <- histdata[seq_len(input$slider)]
-    hist(data, main = dest())
+  mydata <- readRDS("~/workshop/data/airbnb/crete.rds")
+  
+  #reads the input data only if the dest() variable changes:
+  # mydata <- reactive({
+  #   readRDS(file = sprintf("%s.rds", dest()))
+  # })
+  
+  output$map1 <- renderLeaflet({  
+    leaflet() %>% 
+      addTiles() %>% 
+      addMarkers(lng=mydata$longitude, 
+                 lat=mydata$latitude, popup=mydata$name, 
+                 clusterOptions = markerClusterOptions())
   })
+  
 }
-    
-## To be copied in the UI
-# mod_airbnb_ui("airbnb_ui_1")
-    
-## To be copied in the server
-# callModule(mod_airbnb_server, "airbnb_ui_1")
+
  
