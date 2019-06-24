@@ -13,6 +13,13 @@
 #' @keywords internal
 #' @export 
 #' @importFrom shiny NS tagList 
+#' 
+#' @import tidyverse
+#' @import leaflet
+#' @import leaflet.extras
+#' @import googleway
+#' @import rgdal
+#' 
 mod_airbnb_ui <- function(id, dest){
   ns <- NS(id)
   
@@ -20,15 +27,24 @@ mod_airbnb_ui <- function(id, dest){
   # Please change for your purpose
   # Do not forget to put ns() around all input ids!!!
   tagList(
+    
     tags$h1(paste(dest, "Airbnb", sep = "-")),
+    
     fluidRow(
-      box(title = dest, plotOutput(ns("plot1"), height = 250)),
-      
-      box(
-        title = "Controls",
-        sliderInput(ns("slider"), "Number of observations:", 1, 100, 50)
-      )
+      box(title = "FILTERS", width = 10,
+          div(style="display: inline-block;vertical-align:top; width: 200px;",sliderInput(ns("input_price"), "Price", 0, 500, value = c(0,500), dragRange = TRUE)),
+          div(style="display: inline-block;vertical-align:top; width: 100px;",HTML("<br>")),
+          div(style="display: inline-block;vertical-align:top; width: 100px;",numericInput(ns("input_bed"), "No. of beds", value = 1)),
+          div(style="display: inline-block;vertical-align:top; width: 100px;",HTML("<br>")),
+          div(style="display: inline-block;vertical-align:top; width: 80px;",numericInput(ns("input_rating"), "Min. rating", value = 3))
+          )
+    ),
+    
+    
+    fluidRow(
+      DT::dataTableOutput(ns("airbnb_table"))
     )
+    
   )
 }
     
@@ -40,13 +56,33 @@ mod_airbnb_ui <- function(id, dest){
 mod_airbnb_server <- function(input, output, session, dest){
   ns <- session$ns
   
-  # This is just an example Server to be modified
-  # Please change for your purpose
-  histdata <- rnorm(500)
-  output$plot1 <- renderPlot({
-    data <- histdata[seq_len(input$slider)]
-    hist(data, main = dest())
+  # Loads the selected data
+  dt_country <- reactive({
+    dt_imported <- read_rds(paste0("data/airbnb/", tolower(dest()), ".rds"))
+    dt_imported <- dt_imported %>% mutate(price = as.numeric(sub("$", "", price, fixed = TRUE)))
   })
+  
+  dt_filtered <- reactive({
+    dt_filtered <- filter(dt_country(), 
+                          price >= input$input_price[1] & price <= input$input_price[2],
+                          bedrooms == input$input_bed,
+                          review_scores_rating >= input$input_rating
+                          )
+  })
+  
+  observe({
+    updateSliderInput(session, "input_price", max = max(dt_country()$price, na.rm = TRUE)-100)
+  })
+  
+
+
+  output$airbnb_table <- DT::renderDataTable(
+      DT::datatable(data = dt_filtered()[, c("name","city","price")], 
+                    options = list(pageLength = 10), 
+                    rownames = FALSE)
+  )
+  
+  
 }
     
 ## To be copied in the UI
