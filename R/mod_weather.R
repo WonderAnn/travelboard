@@ -23,6 +23,11 @@ mod_weather_ui <- function(id, dest){
   tagList(
     tags$h1(paste(dest, "Weather", sep = "-")),
     fluidRow(
+      column(4, selectInput("visual", "Choose visual", choices = c("Map", "Plot historical info"), selected = "Map")),
+      column(4,dateInput("datefrom", label = "Date from", value = as.Date("2000-01-01"))),
+      column(4,dateInput("dateto", label = "Date to", value = as.Date("2000-01-01")))
+    ),
+    fluidRow(
       box(title = dest, plotOutput(ns("plot1"), height = 250)),
       box(title = dest, plotOutput(ns("plot2"), height = 250)),
       box(
@@ -44,22 +49,23 @@ mod_weather_server <- function(input, output, session, dest){
   
   # This is just an example Server to be modified
   # Please change for your purpose
-  histdata <- rnorm(500)
-  output$plot1 <- renderPlot({
-    data <- histdata[seq_len(input$slider)]
-    hist(data, main = dest())
-  })
   
+   histdata <- rnorm(500)
+    output$plot1 <- renderPlot({
+     data <- histdata[seq_len(input$slider)]
+     hist(data, main = dest())
+    })
   
-  output$plot2 <- renderPlot({
-    fname <- sprintf("~/workshop/data/weather/%s.rds", tolower(dest()))
-    dat <- readRDS(fname)
-    dat %>% 
-      mutate(date = as.Date(date)) %>% 
-      ggplot() + 
-      geom_line(aes(date, value, color = datatype, group = datatype)) +  
-      facet_wrap(~datatype, scales = "free_y", ncol = 1)
-  })
+    output$plot2 <- renderPlot({
+      fname <- sprintf("~/workshop/data/weather/%s.rds", tolower(dest()))
+      dat <- readRDS(fname)
+      dat %>% 
+        mutate(date = as.Date(date)) %>% 
+        ggplot() + 
+        geom_line(aes(date, value, color = datatype, group = datatype)) +  
+        facet_wrap(~datatype, scales = "free_y", ncol = 1)
+    })
+  
 }
 
 ## To be copied in the UI
