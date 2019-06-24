@@ -31,7 +31,7 @@ mod_airbnb_ui <- function(id, dest){
     tags$h1(paste(dest, "Airbnb", sep = "-")),
     
     fluidRow(
-      box(title = "FILTERS", width = 10,
+      box(title = "FILTERS", width = '100%',
           div(style="display: inline-block;vertical-align:top; width: 200px;",sliderInput(ns("input_price"), "Price", 0, 500, value = c(0,500), dragRange = TRUE)),
           div(style="display: inline-block;vertical-align:top; width: 100px;",HTML("<br>")),
           div(style="display: inline-block;vertical-align:top; width: 100px;",sliderInput(ns("input_beds"), "No. of beds", 0, 50, value = c(0,50), dragRange = TRUE)),
