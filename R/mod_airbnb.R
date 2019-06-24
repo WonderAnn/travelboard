@@ -42,7 +42,8 @@ mod_airbnb_ui <- function(id, dest){
     
     
     fluidRow(
-      DT::dataTableOutput(ns("airbnb_table"))
+      column(6, DT::dataTableOutput(ns("airbnb_table")) ),
+      column(6, plotOutput(ns("price_distr"))) 
     )
     
   )
@@ -60,6 +61,11 @@ mod_airbnb_server <- function(input, output, session, dest){
   dt_country <- reactive({
     dt_imported <- read_rds(paste0("data/airbnb/", tolower(dest()), ".rds"))
     dt_imported <- dt_imported %>% mutate(price = as.numeric(sub("$", "", price, fixed = TRUE)))
+  })
+  
+  # Country level price data 
+  total_price  <- reactive({
+    data.frame(sample = "Total", price = as.matrix(dt_country()$price))
   })
   
   dt_filtered <- reactive({
@@ -85,6 +91,23 @@ mod_airbnb_server <- function(input, output, session, dest){
                     rownames = FALSE)
   )
   
+  output$price_distr <- renderPlot({
+    
+    dt_price <- rbind(total_price(), data.frame(sample = "Selected", price = dt_filtered()$price))
+    means    <- dt_price %>% group_by(sample) %>% summarize(mean_price = mean(price, na.rm = TRUE))
+    
+    ggplot(dt_price, aes(x = price, group = sample, color = sample, fill = sample)) + 
+      geom_density(alpha = 0.4) + 
+      labs(title = "Price distribution",
+           x     = "Price / Night", 
+           y     = "Relative frequency") +
+      geom_vline(data = means, 
+                 aes(xintercept = means$mean_price, 
+                     color      = sample),
+                 linetype   = "dashed")
+    
+    
+  })
   
 }
     
