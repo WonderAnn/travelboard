@@ -30,6 +30,8 @@ mod_weather_ui <- function(id, dest){
     fluidRow(
       box(title = dest, plotOutput(ns("plot1"), height = 250)),
       box(title = dest, plotOutput(ns("plot2"), height = 250)),
+      uiOutput(ns("infobox")),
+      
       box(
         title = "Controls",
         sliderInput(ns("slider"), "Number of observations:", 1, 100, 50)
@@ -66,6 +68,20 @@ mod_weather_server <- function(input, output, session, dest){
         facet_wrap(~datatype, scales = "free_y", ncol = 1)
     })
   
+
+  output$plot2 <- renderPlot({
+    fname <- sprintf("~/workshop/data/weather/%s.rds", tolower(dest()))
+    dat <- readRDS(fname)
+    dat %>% 
+      mutate(date = as.Date(date)) %>% 
+      ggplot() + 
+      geom_line(aes(date, value, color = datatype, group = datatype)) +  
+      facet_wrap(~datatype, scales = "free_y", ncol = 1)
+  })
+  
+  output$infobox <- renderUI({
+    infoBox(title="Current Temp", value=currtemp[[dest()]]$temp)
+  })
 }
 
 ## To be copied in the UI
