@@ -11,13 +11,14 @@
 #' @param session internal
 #'
 #' @rdname mod_weather
-#' @import owmr
-#' @import leaflet
-#' @import dplyr
 #'
 #' @keywords internal
 #' @export 
 #' @importFrom shiny NS tagList 
+#' @import dplyr 
+#' @import owmr 
+#' @import leaflet
+#' @import ggplot2
 mod_weather_ui <- function(id, dest){
   ns <- NS(id)
   
@@ -128,6 +129,7 @@ mod_weather_server <- function(input, output, session, dest){
   
   output$map <- renderLeaflet({leaflet() %>% 
                                 addTiles() %>% 
+
                                  add_owm_tiles(layer_name = owm_layers$Temperature_new, data = cities()) %>% 
                                 add_weather(cities, long(), lat()) %>% 
                                 addProviderTiles(providers$OpenWeatherMap.Clouds, options = providerTileOptions(apiKey=apikey)) %>% 
@@ -135,6 +137,7 @@ mod_weather_server <- function(input, output, session, dest){
                                 setView(long(), lat(), zoom = 9)
    
     })
+
   
   output$plot2 <- renderPlot({
     fname <- sprintf("~/workshop/data/weather/%s.rds", tolower(dest()))
@@ -150,22 +153,22 @@ mod_weather_server <- function(input, output, session, dest){
   
   output$infobox <- renderUI({
     currtemp <- readRDS("~/workshop/data/weather/currtemp.rds")
-    infoBox(title="Current Temp", value=currtemp[[dest()]]$temp)
+    infoBox(title="Current Temp", value=currtemp[[dest()]]$temp, color = "green" ,icon = icon("info-circle"))
   })
   
   output$infobox2 <- renderUI({
     currtemp <- readRDS("~/workshop/data/weather/currtemp.rds")
-    infoBox(title="Min Temp", value=currtemp[[dest()]]$temp_min)
+    infoBox(title="Min Temp", value=currtemp[[dest()]]$temp_min , color = "light-blue" ,icon = icon("minus"))
   })
   
   output$infobox3 <- renderUI({
     currtemp <- readRDS("~/workshop/data/weather/currtemp.rds")
-    infoBox(title="Max Temp", value=currtemp[[dest()]]$temp_max)
+    infoBox(title="Max Temp", value=currtemp[[dest()]]$temp_max, color = "yellow" ,icon = icon("sun"))
   })
   
   output$infobox4 <- renderUI({
     currtemp <- readRDS("~/workshop/data/weather/currtemp.rds")
-    infoBox(title="Weather today ", value=currtemp[[dest()]]$weather_description)
+    infoBox(title="Weather today ", value=currtemp[[dest()]]$weather_description,color = "aqua" ,icon = icon("users"))
   })
 }
 
