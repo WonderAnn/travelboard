@@ -22,8 +22,10 @@ mod_airbnb_ui <- function(id, dest){
   tagList(
     tags$h1(paste(dest, "Airbnb", sep = "-")),
     fluidRow(
-      leafletOutput(ns("map1"))
-    )
+      leafletOutput(outputId = ns("map1"), width="100%")
+    ),
+    br(),
+    verbatimTextOutput("out")
   )  
 }
     
@@ -50,6 +52,11 @@ mod_airbnb_server <- function(input, output, session, dest){
                  clusterOptions = markerClusterOptions())
   })
   
+  output$out <- renderPrint({
+    validate(need(input$map_click, FALSE))
+    str(input$map_click)
+  })
+
 }
 
  
