@@ -16,7 +16,9 @@
 #' @keywords internal
 #' @export 
 #' @importFrom shiny NS tagList 
-#' @import dplyr owmr leaflet
+#' @import dplyr 
+#' @import owmr 
+#' @import leaflet
 mod_weather_ui <- function(id, dest){
   ns <- NS(id)
   
