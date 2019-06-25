@@ -123,17 +123,6 @@ mod_weather_server <- function(input, output, session, dest){
       facet_wrap(~datatype, scales = "free_y", ncol = 1)
   })
   
-  
-  output$plot2 <- renderPlot({
-    fname <- sprintf("~/workshop/data/weather/%s.rds", tolower(dest()))
-    dat <- readRDS(fname)
-    dat %>% 
-      mutate(date = as.Date(date)) %>% 
-      ggplot() + 
-      geom_line(aes(date, value, color = datatype, group = datatype)) +  
-      facet_wrap(~datatype, scales = "free_y", ncol = 1)
-  })
-  
   output$infobox <- renderUI({
     currtemp <- readRDS("~/workshop/data/weather/currtemp.rds")
     infoBox(title="Current Temp", value=currtemp[[dest()]]$temp)
