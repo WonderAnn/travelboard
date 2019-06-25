@@ -12,13 +12,12 @@
 #'
 #' @rdname mod_weather
 #' @import owmr
+#' @import leaflet
+#' @import dplyr
 #'
 #' @keywords internal
 #' @export 
 #' @importFrom shiny NS tagList 
-#' @import dplyr 
-#' @import owmr 
-#' @import leaflet
 mod_weather_ui <- function(id, dest){
   ns <- NS(id)
   
@@ -108,13 +107,13 @@ mod_weather_server <- function(input, output, session, dest){
       39.69526
     }
     else {
-      
-      
       38.72225
     })
+  #temp <- c('temp:'+find_city$list$maintemp_max(dest()), 
   
-  
-  
+#  icon <- reactive(
+ #   addProviderTiles(providers$OpenWeatherMap.Temperature, options = providerTileOptions(apiKey=apikey))
+ # )
  
       
   # google_geocode(address = "Vienna, Austria") -> (16.37382, 48.20817)
@@ -123,12 +122,16 @@ mod_weather_server <- function(input, output, session, dest){
   # google_geocode(address = "Mallorca, Spain") -> (3.017571, 39.69526)
   # google_geocode(address = "Lisbon, Portugal") -> (-9.139337, 38.72225)
   apikey <- "d7eae13fe954ea0e04b0c40a172c4a10"
-  owmr::owmr_settings(apikey)
+  owmr_settings(apikey)
+  
+ cities <- reactive(c('Vienna', 'Creete', 'Palma de Mallorka', 'Lisbon', 'Rome'))
   
   output$map <- renderLeaflet({leaflet() %>% 
                                 addTiles() %>% 
+                                 add_owm_tiles(layer_name = owm_layers$Temperature_new, data = cities()) %>% 
+                                add_weather(cities, long(), lat()) %>% 
                                 addProviderTiles(providers$OpenWeatherMap.Clouds, options = providerTileOptions(apiKey=apikey)) %>% 
-                                addMarkers(long(), lat(), popup = dest(), label = providers$OpenWeatherMap.Temperature )%>%
+                                addMarkers(long(), lat(), data = find_city(dest()))%>%
                                 setView(long(), lat(), zoom = 9)
    
     })
