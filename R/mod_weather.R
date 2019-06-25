@@ -40,7 +40,10 @@ mod_weather_ui <- function(id, dest){
                  box(title = dest, plotOutput(ns("plot1"), height = 250)),
                  box(title = dest, plotOutput(ns("plot2"), height = 250)),
                  uiOutput(ns("infobox")),
-                 
+                 uiOutput(ns("infobox2")),
+                 uiOutput(ns("infobox3")),
+                 uiOutput(ns("infobox4")),
+
                  box(
                    title = "Controls",
                    sliderInput(ns("slider"), "Number of observations:", 1, 100, 50)
@@ -100,6 +103,21 @@ mod_weather_server <- function(input, output, session, dest){
   output$infobox <- renderUI({
     currtemp <- readRDS("~/workshop/data/weather/currtemp.rds")
     infoBox(title="Current Temp", value=currtemp[[dest()]]$temp)
+  })
+  
+  output$infobox2 <- renderUI({
+    currtemp <- readRDS("~/workshop/data/weather/currtemp.rds")
+    infoBox(title="Min Temp", value=currtemp[[dest()]]$temp_min)
+  })
+  
+  output$infobox3 <- renderUI({
+    currtemp <- readRDS("~/workshop/data/weather/currtemp.rds")
+    infoBox(title="Max Temp", value=currtemp[[dest()]]$temp_max)
+  })
+  
+  output$infobox4 <- renderUI({
+    currtemp <- readRDS("~/workshop/data/weather/currtemp.rds")
+    infoBox(title="Weather today ", value=currtemp[[dest()]]$weather_description)
   })
 }
 
