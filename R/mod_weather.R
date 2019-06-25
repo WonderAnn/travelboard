@@ -16,7 +16,10 @@
 #' @keywords internal
 #' @export 
 #' @importFrom shiny NS tagList 
-#' @import dplyr owmr leaflet
+#' @import dplyr 
+#' @import owmr 
+#' @import leaflet
+#' @import ggplot2
 mod_weather_ui <- function(id, dest){
   ns <- NS(id)
   
@@ -123,12 +126,12 @@ mod_weather_server <- function(input, output, session, dest){
   # google_geocode(address = "Mallorca, Spain") -> (3.017571, 39.69526)
   # google_geocode(address = "Lisbon, Portugal") -> (-9.139337, 38.72225)
   apikey <- "d7eae13fe954ea0e04b0c40a172c4a10"
-  owmr_settings(apikey)
+  owmr::owmr_settings(apikey)
   
   output$map <- renderLeaflet({leaflet() %>% 
                                 addTiles() %>% 
-                                addProviderTiles(providers$OpenWeatherMap.Clouds, options = providerTileOptions(apiKey=apikey)) %>% 
-                                addMarkers(long(), lat(), popup = dest(), label = providers$OpenWeatherMap.Temperature )%>%
+                                addProviderTiles(leaflet::providers$OpenWeatherMap.Clouds, options = providerTileOptions(apiKey=apikey)) %>% 
+                                addMarkers(long(), lat(), popup = dest(), label = leaflet::providers$OpenWeatherMap.Temperature )%>%
                                 setView(long(), lat(), zoom = 9)})
   
   output$plot2 <- renderPlot({
