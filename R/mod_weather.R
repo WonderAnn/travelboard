@@ -32,7 +32,7 @@ mod_weather_ui <- function(id, dest){
                fluidPage(
                  title = dest, leafletOutput(ns('map') , width = "100%"))
                ),
-      tabPanel('Historical Info', 
+      tabPanel('Details', 
                
                fluidRow( id = 'Historical',
                          column(4, selectInput("visual", "Choose visual", choices = c("Map", "Plot historical info"), selected = "Map")),
@@ -40,16 +40,16 @@ mod_weather_ui <- function(id, dest){
                          column(4,dateInput(ns("dateto"), label = "Date to", value = as.Date("2000-01-01")))
                ),
                fluidRow(
-                 box(title = dest, plotOutput(ns("plot1"), height = 250)),
-                 box(title = dest, plotOutput(ns("plot2"), height = 250)),
-                 uiOutput(ns("infobox")),
+               # box(title = dest, plotOutput(ns("plot1"), height = 250)),
+                 box(title = dest, plotOutput(ns("plot2"), width = 800)),
+                 uiOutput(ns("infobox"))
                  
-                 box(
-                   title = "Controls",
-                   sliderInput(ns("slider"), "Number of observations:", 1, 100, 50)
-                 )
-               )))
-  )
+               #  box(
+               #    title = "Controls",
+               #    sliderInput(ns("slider"), "Number of observations:", 1, 100, 50)
+               #  )
+               ))#)
+  ))
 }
 
 # Module Server
@@ -64,28 +64,46 @@ mod_weather_server <- function(input, output, session, dest){
   # This is just an example Server to be modified
   # Please change for your purpose
   
-  histdata <- rnorm(500)
-  output$plot1 <- renderPlot({
-    data <- histdata[seq_len(input$slider)]
-    hist(data, main = dest())
-  })
+ # histdata <- rnorm(500)
+#  output$plot1 <- renderPlot({
+ #   data <- histdata[seq_len(input$slider)]
+ #   hist(data, main = dest())
+ # })
   
-
-    long <- reactive(
-      if( dest() =="Creete"){
-         24.80927
-      }
-      else {
-         16.37382
-      })
-    
-  lat <-  reactive( 
-    if (dest() == "Creete"){
-       35.24012
+  long <- reactive(
+    if( dest() =="Crete"){
+      24.80927
+    }
+    else if(dest() =="Vienna"){
+      16.37382
+    }
+    else if(dest() =="Rome"){
+      12.49637
+    }
+    else if(dest() =="Mallorca"){
+      3.017571
     }
     else {
+      9.139337
+    })
+  
+  lat <-  reactive(
+    if( dest() =="Crete"){
+      35.24012
+    }
+    else if(dest() =="Vienna"){
       48.20817
-    }) 
+    }
+    else if(dest() =="Rome"){
+      41.90278
+    }
+    else if(dest() =="Mallorca"){
+      39.69526
+    }
+    else {
+      38.72225
+    })
+  
   
   
   info <- reactive(
@@ -105,7 +123,7 @@ mod_weather_server <- function(input, output, session, dest){
   output$map <- renderLeaflet({leaflet() %>% 
                                 addTiles() %>% 
                                 addProviderTiles(providers$OpenWeatherMap.Clouds, options = providerTileOptions(apiKey=apikey)) %>% 
-                                addMarkers(long(), lat(), popup = dest(), label = providers$OpenWeatherMap.Temperture )%>%
+                                addMarkers(long(), lat(), popup = dest(), label = providers$OpenWeatherMap.Temperature )%>%
                                 setView(long(), lat(), zoom = 9)})
   
   output$plot2 <- renderPlot({
@@ -115,17 +133,6 @@ mod_weather_server <- function(input, output, session, dest){
       mutate(date = as.Date(date)) %>% 
       filter(date >= input$datefrom) %>%
       filter(date <= input$dateto) %>%
-      ggplot() + 
-      geom_line(aes(date, value, color = datatype, group = datatype)) +  
-      facet_wrap(~datatype, scales = "free_y", ncol = 1)
-  })
-  
-  
-  output$plot2 <- renderPlot({
-    fname <- sprintf("~/workshop/data/weather/%s.rds", tolower(dest()))
-    dat <- readRDS(fname)
-    dat %>% 
-      mutate(date = as.Date(date)) %>% 
       ggplot() + 
       geom_line(aes(date, value, color = datatype, group = datatype)) +  
       facet_wrap(~datatype, scales = "free_y", ncol = 1)
