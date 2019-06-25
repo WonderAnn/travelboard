@@ -17,12 +17,20 @@
 mod_weather_ui <- function(id, dest){
   ns <- NS(id)
   
+  
   # This is just an example UI to be modified
   # Please change for your purpose
   # Do not forget to put ns() around all input ids!!!
   tagList(
+  #  plotOutput(ns("plot2")),
     tags$h1(paste(dest, "Weather", sep = "-")),
-    fluidRow(
+    tabsetPanel(
+      id = 'Weather',
+      tabPanel('Map', leafletOutput('map')
+               ),
+      tabPanel('Forecast', 
+    
+    fluidRow( id = 'Historical',
       column(4, selectInput("visual", "Choose visual", choices = c("Map", "Plot historical info"), selected = "Map")),
       column(4,dateInput("datefrom", label = "Date from", value = as.Date("2000-01-01"))),
       column(4,dateInput("dateto", label = "Date to", value = as.Date("2000-01-01")))
@@ -36,7 +44,7 @@ mod_weather_ui <- function(id, dest){
         title = "Controls",
         sliderInput(ns("slider"), "Number of observations:", 1, 100, 50)
       )
-    )
+    )))
   )
 }
 
@@ -57,6 +65,14 @@ mod_weather_server <- function(input, output, session, dest){
      data <- histdata[seq_len(input$slider)]
      hist(data, main = dest())
     })
+    
+    output$map <- renderLeaflet(
+      leaflet() %>%
+        addTiles() %>%
+        addProviderTiles(providers$OpenWeatherMap.Temperature,
+                         options = providerTileOptions(apiKey=apikey)) %>%
+        setView(24.80927, 35.24012, zoom = 9)
+    )
   
     output$plot2 <- renderPlot({
       fname <- sprintf("~/workshop/data/weather/%s.rds", tolower(dest()))
