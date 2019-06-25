@@ -19,6 +19,7 @@
 #' @import dplyr 
 #' @import owmr 
 #' @import leaflet
+#' @import ggplot2
 mod_weather_ui <- function(id, dest){
   ns <- NS(id)
   
