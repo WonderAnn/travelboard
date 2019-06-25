@@ -144,8 +144,12 @@ mod_airbnb_server <- function(input, output, session, dest){
       paste()
     
 
-    if(identical(url2, "character(0)"))
-      return()
+    if(identical(url2, "character(0)")){
+        output$reviewout<-renderText({
+          ""
+        })
+        return()
+    }
     
     webpage <- read_html(url2)
     tmp <- html_text(webpage)
