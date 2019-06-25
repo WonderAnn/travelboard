@@ -80,6 +80,7 @@ mod_weather_server <- function(input, output, session, dest){
   })
   
   output$infobox <- renderUI({
+    currtemp <- readRDS("~/workshop/data/weather/currtemp.rds")
     infoBox(title="Current Temp", value=currtemp[[dest()]]$temp)
   })
 }
