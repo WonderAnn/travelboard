@@ -47,7 +47,7 @@ mod_weather_ui <- function(id, dest){
                  uiOutput(ns("infobox")),
                  uiOutput(ns("infobox2")),
                  uiOutput(ns("infobox3")),
-                 uiOutput(ns("infobox4")),
+                 uiOutput(ns("infobox4"))
 
              #    box(
              #      title = "Controls",
