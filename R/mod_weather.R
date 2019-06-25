@@ -11,6 +11,7 @@
 #' @param session internal
 #'
 #' @rdname mod_weather
+#' @import owmr
 #'
 #' @keywords internal
 #' @export 
@@ -27,9 +28,11 @@ mod_weather_ui <- function(id, dest){
     tags$h1(paste(dest, "Weather", sep = "-")),
     tabsetPanel(
       id = 'Weather',
-      tabPanel('Map',fluidPage( leafletOutput('map'))
-      ),
-      tabPanel('Forecast', 
+      tabPanel('Map',
+               fluidRow(
+                 box(title = dest, leafletOutput(ns('map') , width = 800)))
+               ),
+      tabPanel('Historical Info', 
                
                fluidRow( id = 'Historical',
                          column(4, selectInput("visual", "Choose visual", choices = c("Map", "Plot historical info"), selected = "Map")),
@@ -67,14 +70,36 @@ mod_weather_server <- function(input, output, session, dest){
     hist(data, main = dest())
   })
   
+
+    long <- reactive(
+      if( dest() =="Creete"){
+         24.80927
+      }
+      else {
+         16.37382
+      })
+    
+  lat <-  reactive( 
+    if (dest() == "Creete"){
+       35.24012
+    }
+    else {
+      48.20817
+    }) 
+      
+  # google_geocode(address = "Vienna, Austria") -> (16.37382, 48.20817)
+  # google_geocode(address = "Crete, Greece") -> (24.80927, 35.24012)
+  # google_geocode(address = "Rome, Italy") -> (12.49637, 41.90278)
+  # google_geocode(address = "Mallorca, Spain") -> (3.017571, 39.69526)
+  # google_geocode(address = "Lisbon, Portugal") -> (-9.139337, 38.72225)
   apikey <- "d7eae13fe954ea0e04b0c40a172c4a10"
   owmr_settings(apikey)
-  mymap = leaflet() %>% 
-    addTiles() %>% 
-    addProviderTiles(providers$OpenWeatherMap.Temperature, options = providerTileOptions(apiKey=apikey)) %>% 
-    setView(24.80927, 35.24012, zoom = 9)
   
-  output$map <- renderLeaflet(mymap)
+  output$map <- renderLeaflet({leaflet() %>% 
+                                addTiles() %>% 
+                                addProviderTiles(providers$OpenWeatherMap.Clouds, options = providerTileOptions(apiKey=apikey)) %>% 
+                                addMarkers(long(), lat(), popup = dest(), label = providers$OpenWeatherMap.Temperture )%>%
+                                setView(long(), lat(), zoom = 9)})
   
   output$plot2 <- renderPlot({
     fname <- sprintf("~/workshop/data/weather/%s.rds", tolower(dest()))
