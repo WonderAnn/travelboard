@@ -19,6 +19,9 @@
 #' @import leaflet.extras
 #' @import googleway
 #' @import rgdal
+#' @import rvest
+#' @import xml2
+#' @import stringr
 #' 
 
 mod_airbnb_ui <- function(id, dest){
@@ -38,9 +41,11 @@ mod_airbnb_ui <- function(id, dest){
           )
     ),
     fluidRow(
-      leafletOutput(outputId = ns("map1"), width="100%"),
-      br(),
-      verbatimTextOutput("out")
+      leafletOutput(outputId = ns("map1"), width="100%")
+    ),
+    
+    fluidRow(
+      verbatimTextOutput(ns("reviewout"))
     ),  
     
     fluidRow(
@@ -59,12 +64,6 @@ mod_airbnb_ui <- function(id, dest){
 #' @keywords internal
 mod_airbnb_server <- function(input, output, session, dest){
   ns <- session$ns
-  
-  #mydata <- readRDS("~/workshop/data/airbnb/crete.rds")
-  #ALTERNATIVE: reads the input data only if the dest() variable changes:
-  # mydata <- reactive({
-  #   readRDS(file = sprintf("%s.rds", dest()))
-  # })
   
   # Loads the selected data
   dt_country <- reactive({
@@ -130,10 +129,32 @@ mod_airbnb_server <- function(input, output, session, dest){
                  lat=dt_filtered()$latitude, popup=dt_filtered()$name, 
                  clusterOptions = markerClusterOptions())
   })
-  output$out <- renderPrint({
-    validate(need(input$map_click, FALSE))
-    str(input$map_click)
+  
+  #Webscraping the latest review:
+  observe({
+    
+    click<- input$map1_marker_click
+    if(is.null(click))
+      return()
+  
+    lat <- click$lat
+    lng <- click$lng
+    url2 <- dt_filtered() %>% 
+      filter(latitude == lat, longitude == lng) %>% 
+      select(listing_url) %>%
+      paste()
+    
+    webpage <- read_html(url2)
+    tmp <- html_text(webpage)
+    aa <- str_locate(string = tmp,pattern = "comments")
+    bb <- str_locate(string = tmp,pattern = "created_at")
+    reviewtext <- str_sub(tmp, aa[1]+11, bb[1]-35)
+    output$reviewout<-renderText({
+      reviewtext
+    })
+    
   })
+
   
   output$price_distr <- renderPlot({
     
