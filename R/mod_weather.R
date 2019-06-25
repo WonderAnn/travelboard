@@ -30,19 +30,19 @@ mod_weather_ui <- function(id, dest){
       id = 'Weather',
       tabPanel('Map',
                fluidPage(
-                 title = dest, leafletOutput(ns('map') , width = "100%"))
+                 title = dest, leafletOutput(ns('map') , width = "100%", height = 600))
                ),
       tabPanel('Details', 
                
                fluidRow( id = 'Historical',
-                         column(4, selectInput("visual", "Choose visual", choices = c("Map", "Plot historical info"), selected = "Map")),
+                      #   column(4, selectInput("visual", "Choose visual", choices = c("Map", "Plot historical info"), selected = "Map")),
                          column(4,dateInput(ns("datefrom"), label = "Date from", value = as.Date("2000-01-01"))),
                          column(4,dateInput(ns("dateto"), label = "Date to", value = as.Date("2000-01-01")))
                ),
                fluidRow(
 
                  #box(title = dest, plotOutput(ns("plot1"), height = 250)),
-                 box(title = dest, plotOutput(ns("plot2"), height = 250)),
+                 box(title = dest, plotOutput(ns("plot2"), width = "100%")),
                  uiOutput(ns("infobox")),
                  uiOutput(ns("infobox2")),
                  uiOutput(ns("infobox3")),
@@ -88,7 +88,7 @@ mod_weather_server <- function(input, output, session, dest){
       3.017571
     }
     else {
-      9.139337
+      -9.139337
     })
   
   lat <-  reactive(
@@ -105,16 +105,14 @@ mod_weather_server <- function(input, output, session, dest){
       39.69526
     }
     else {
+      
+      
       38.72225
     })
   
   
   
-  info <- reactive(
-    {
-      
-    }
-  )
+ 
       
   # google_geocode(address = "Vienna, Austria") -> (16.37382, 48.20817)
   # google_geocode(address = "Crete, Greece") -> (24.80927, 35.24012)
@@ -128,7 +126,9 @@ mod_weather_server <- function(input, output, session, dest){
                                 addTiles() %>% 
                                 addProviderTiles(providers$OpenWeatherMap.Clouds, options = providerTileOptions(apiKey=apikey)) %>% 
                                 addMarkers(long(), lat(), popup = dest(), label = providers$OpenWeatherMap.Temperature )%>%
-                                setView(long(), lat(), zoom = 9)})
+                                setView(long(), lat(), zoom = 9)
+   
+    })
   
   output$plot2 <- renderPlot({
     fname <- sprintf("~/workshop/data/weather/%s.rds", tolower(dest()))
