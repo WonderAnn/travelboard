@@ -130,8 +130,8 @@ mod_weather_server <- function(input, output, session, dest){
   
   output$map <- renderLeaflet({leaflet() %>% 
                                 addTiles() %>% 
-                                addProviderTiles(providers$OpenWeatherMap.Clouds, options = providerTileOptions(apiKey=apikey)) %>% 
-                                addMarkers(long(), lat(), popup = dest(), label = providers$OpenWeatherMap.Temperature )%>%
+                                addProviderTiles(leaflet::providers$OpenWeatherMap.Clouds, options = providerTileOptions(apiKey=apikey)) %>% 
+                                addMarkers(long(), lat(), popup = dest(), label = leaflet::providers$OpenWeatherMap.Temperature )%>%
                                 setView(long(), lat(), zoom = 9)})
   
   output$plot2 <- renderPlot({
