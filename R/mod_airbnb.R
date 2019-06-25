@@ -125,7 +125,7 @@ mod_airbnb_server <- function(input, output, session, dest){
   
   output$map1 <- renderLeaflet({  
     leaflet() %>% 
-      addTiles() %>% 
+      addProviderTiles(providers$Esri.NatGeoWorldMap) %>% 
       addMarkers(lng=dt_filtered()$longitude, 
                  lat=dt_filtered()$latitude, popup=dt_filtered()$name, 
                  clusterOptions = markerClusterOptions(), 
