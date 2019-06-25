@@ -26,26 +26,29 @@ mod_airbnb_ui <- function(id, dest){
 
   tagList(
     
-    tags$h1(paste(dest, "Airbnb", sep = "-")),
+    #tags$h1(paste(dest, "Airbnb - Filter", sep = "-")),
     
     fluidRow(
-      box(title = "FILTERS", width = '100%',
+      tags$head(tags$style(HTML(".box {margin: 5px;}"))),
+      box(title = paste(dest, " Airbnb - Filter", sep = " -"), width = '100%', height = "140px", 
           div(style="display: inline-block;vertical-align:top; width: 200px;",sliderInput(ns("input_price"), "Price", 0, 500, value = c(0,500), dragRange = TRUE)),
           div(style="display: inline-block;vertical-align:top; width: 100px;",HTML("<br>")),
-          div(style="display: inline-block;vertical-align:top; width: 100px;",sliderInput(ns("input_beds"), "No. of beds", 0, 50, value = c(0,50), dragRange = TRUE)),
+          div(style="display: inline-block;vertical-align:top; width: 120px;",sliderInput(ns("input_beds"), "No. of beds", 0, 50, value = c(0,50), dragRange = TRUE)),
+          #div(style="display: inline-block;vertical-align:top; width: 100px;",HTML("<br>")),
+          #div(style="display: inline-block;vertical-align:top; width: 120px;",numericInput(ns("input_rating"), "Min. rating", value = 0, min = 0, max = 100)),
           div(style="display: inline-block;vertical-align:top; width: 100px;",HTML("<br>")),
-          div(style="display: inline-block;vertical-align:top; width: 80px;",numericInput(ns("input_rating"), "Min. rating", value = 0, min = 0, max = 100))
+          div(style="display: inline-block;vertical-align:top; width: 400px;",selectInput(ns("input_city"), "City", choices = c(), multiple = TRUE))
           )
     ),
     fluidRow(
-      leafletOutput(outputId = ns("map1"), width="100%"),
+      leafletOutput(outputId = ns("map1"), width="100%", height = "200px"),
       br(),
       verbatimTextOutput("out")
     ),  
     
     fluidRow(
-      column(6, DT::dataTableOutput(ns("airbnb_table")) ),
-      column(6, plotOutput(ns("price_distr"))) 
+      column(6, div(DT::dataTableOutput(ns("airbnb_table")), style = "font-size: 80%")),
+      column(6, plotOutput(ns("price_distr"), height = "350px")) 
     )
     
   )
@@ -78,11 +81,12 @@ mod_airbnb_server <- function(input, output, session, dest){
   })
   
   dt_filtered <- reactive({
+    
     dt_filtered <- filter(dt_country(), 
                           price >= input$input_price[1] & price <= input$input_price[2],
-                          beds >= input$input_beds[1] & beds <= input$input_beds[2],
-                          review_scores_rating >= input$input_rating
-                          )
+                          beds >= input$input_beds[1] & beds <= input$input_beds[2])  %>% 
+                            filter(eval(parse(text = ifelse(is.null(input$input_city),TRUE, 
+                                              paste0("city %in% c('",paste0(input$input_city,collapse="','"), "')")))))
   })
   
   observe({
@@ -90,6 +94,7 @@ mod_airbnb_server <- function(input, output, session, dest){
                       max = max(dt_country()$price, na.rm = TRUE))
     updateSliderInput(session, "input_beds", value = c(0,max(dt_country()$beds, na.rm = TRUE)), 
                       max = max(dt_country()$beds, na.rm = TRUE))
+    updateSelectInput(session, "input_city", choices = sort(unique(dt_country()$city)))
   })
   
 
@@ -97,30 +102,23 @@ mod_airbnb_server <- function(input, output, session, dest){
   output$airbnb_table <- DT::renderDataTable(
       DT::datatable(data = dt_filtered()[, c("name","city","price", "beds", "review_scores_rating", "room_type")],
                     selection = "single",
-                    options = list(pageLength = 10), 
+                    options = list(pageLength = 5), 
                     rownames = FALSE)
   )
   
-  # 
-  # observeEvent(input$airbnb_table_rows_selected, {
-  #   # Clear selection
-  #   DT::dataTableProxy("airbnb_table") %>% DT::selectRows(NULL)
-  # })
-  # 
-  # rownum <- reactive({ req(input$airbnb_table_rows_selected) })
-  # 
-  # observe({
-  # 
-  #   selectedRow <- dt_filtered()[rownum(),]
-  # 
-  #   # dialog <- modalDialog(title = "Important News",
-  #   #                       "selected row number",
-  #   #                       fluidPage(
-  #   #                         title = selectedRow[, "name"]
-  #   #                       )
-  #   # )
-  #   # showModal(dialog)
-  # })
+
+  observeEvent(input$airbnb_table_rows_selected, {
+    rownum <- req(input$airbnb_table_rows_selected)
+    selectedRow <- dt_filtered()[rownum,]
+    dialog <- modalDialog(title = selectedRow[, "name"],
+                          selectedRow[, "description"], br(), br()
+                          , HTML(paste0('<a href="', selectedRow[, "listing_url"], '">Site on AirB&B</a>')), br(), br() 
+                          , HTML(paste0("<img width='100%' src='",dt_filtered()[rownum,"picture_url"], "'>"))
+                         , easyClose = TRUE)
+    showModal(dialog)
+    # Clear selection
+    DT::dataTableProxy("airbnb_table") %>% DT::selectRows(NULL)
+  })
   
   #leeaflet graphics:
   output$map1 <- renderLeaflet({  
