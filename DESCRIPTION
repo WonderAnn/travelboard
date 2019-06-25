@@ -18,7 +18,6 @@ Imports:
     owmr,
     rnoaa,
     ggplot2,
-    ggplot,
     dplyr
 Remotes: 
     Thinkr-open/golem
