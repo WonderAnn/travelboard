@@ -50,7 +50,7 @@ mod_airbnb_ui <- function(id, dest){
     
     fluidRow(
       verbatimTextOutput(ns("reviewout"))
-    ),  
+    ),
     
     fluidRow(
       column(6, div(DT::dataTableOutput(ns("airbnb_table")), style = "font-size: 80%")),
@@ -131,7 +131,7 @@ mod_airbnb_server <- function(input, output, session, dest){
   
   #Webscraping the latest review:
   observe({
-    
+
     click<- input$map1_marker_click
     if(is.null(click))
       return()
@@ -142,6 +142,10 @@ mod_airbnb_server <- function(input, output, session, dest){
       filter(latitude == lat, longitude == lng) %>% 
       select(listing_url) %>%
       paste()
+    
+
+    if(identical(url2, "character(0)"))
+      return()
     
     webpage <- read_html(url2)
     tmp <- html_text(webpage)
