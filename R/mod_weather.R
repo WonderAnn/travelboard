@@ -29,15 +29,15 @@ mod_weather_ui <- function(id, dest){
     tabsetPanel(
       id = 'Weather',
       tabPanel('Map',
-               fluidRow(
-                 box(title = dest, leafletOutput(ns('map') , width = 800)))
+               fluidPage(
+                 title = dest, leafletOutput(ns('map') , width = "100%"))
                ),
       tabPanel('Historical Info', 
                
                fluidRow( id = 'Historical',
                          column(4, selectInput("visual", "Choose visual", choices = c("Map", "Plot historical info"), selected = "Map")),
-                         column(4,dateInput("datefrom", label = "Date from", value = as.Date("2000-01-01"))),
-                         column(4,dateInput("dateto", label = "Date to", value = as.Date("2000-01-01")))
+                         column(4,dateInput(ns("datefrom"), label = "Date from", value = as.Date("2000-01-01"))),
+                         column(4,dateInput(ns("dateto"), label = "Date to", value = as.Date("2000-01-01")))
                ),
                fluidRow(
                  box(title = dest, plotOutput(ns("plot1"), height = 250)),
@@ -86,6 +86,13 @@ mod_weather_server <- function(input, output, session, dest){
     else {
       48.20817
     }) 
+  
+  
+  info <- reactive(
+    {
+      
+    }
+  )
       
   # google_geocode(address = "Vienna, Austria") -> (16.37382, 48.20817)
   # google_geocode(address = "Crete, Greece") -> (24.80927, 35.24012)
@@ -106,6 +113,8 @@ mod_weather_server <- function(input, output, session, dest){
     dat <- readRDS(fname)
     dat %>% 
       mutate(date = as.Date(date)) %>% 
+      filter(date >= input$datefrom) %>%
+      filter(date <= input$dateto) %>%
       ggplot() + 
       geom_line(aes(date, value, color = datatype, group = datatype)) +  
       facet_wrap(~datatype, scales = "free_y", ncol = 1)
