@@ -121,12 +121,16 @@ mod_airbnb_server <- function(input, output, session, dest){
   })
   
   #leeaflet graphics:
+
+  house = makeIcon("home.png",25,25)
+  
   output$map1 <- renderLeaflet({  
     leaflet() %>% 
       addTiles() %>% 
       addMarkers(lng=dt_filtered()$longitude, 
                  lat=dt_filtered()$latitude, popup=dt_filtered()$name, 
-                 clusterOptions = markerClusterOptions())
+                 clusterOptions = markerClusterOptions(), 
+                 icon = house)
   })
   
   #Webscraping the latest review:
