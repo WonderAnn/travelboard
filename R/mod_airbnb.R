@@ -30,9 +30,9 @@ mod_airbnb_ui <- function(id, dest){
   tagList(
     
     #tags$h1(paste(dest, "Airbnb - Filter", sep = "-")),
+    tags$head(tags$style(HTML(".box {margin: 5px;}"))),
     
     fluidRow(
-      tags$head(tags$style(HTML(".box {margin: 5px;}"))),
       box(title = paste(dest, " Airbnb - Filter", sep = " -"), width = '100%', height = "140px", 
           div(style="display: inline-block;vertical-align:top; width: 200px;",sliderInput(ns("input_price"), "Price", 0, 500, value = c(0,500), dragRange = TRUE)),
           div(style="display: inline-block;vertical-align:top; width: 100px;",HTML("<br>")),
@@ -44,8 +44,7 @@ mod_airbnb_ui <- function(id, dest){
           )
     ),
     fluidRow(
-
-      leafletOutput(outputId = ns("map1"), width="100%", height = "200px")
+      box(leafletOutput(outputId = ns("map1"), width="100%", height = "250px"), width = '100%')
     ),
     
     fluidRow(
@@ -86,7 +85,7 @@ mod_airbnb_server <- function(input, output, session, dest){
                           price >= input$input_price[1] & price <= input$input_price[2],
                           beds >= input$input_beds[1] & beds <= input$input_beds[2])  %>% 
                             filter(eval(parse(text = ifelse(is.null(input$input_city),TRUE, 
-                                              paste0("city %in% c('",paste0(input$input_city,collapse="','"), "')")))))
+                                              paste0("city %in% c(",'"',paste0(input$input_city,collapse='","'), '")')))))
   })
   
   observe({
