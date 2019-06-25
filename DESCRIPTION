@@ -16,7 +16,9 @@ Imports:
     shinydashboard,
     leaflet,
     owmr,
-    rnoaa
+    rnoaa,
+    ggplot2,
+    dplyr
 Remotes: 
     Thinkr-open/golem
 RoxygenNote: 6.1.1
