@@ -13,7 +13,12 @@ Imports:
     attempt,
     glue,
     htmltools,
-    shinydashboard
+    shinydashboard,
+    leaflet,
+    tidyverse,
+    rvest,
+    xml2,
+    stringr
 Remotes: 
     Thinkr-open/golem
 RoxygenNote: 6.1.1
