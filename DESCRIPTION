@@ -18,7 +18,11 @@ Imports:
     owmr,
     rnoaa,
     ggplot2,
-    dplyr
+    dplyr,
+    tidyverse,
+    rvest,
+    xml2,
+    stringr
 Remotes: 
     Thinkr-open/golem
 RoxygenNote: 6.1.1
